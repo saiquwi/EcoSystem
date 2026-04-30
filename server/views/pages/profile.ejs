@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="profile-container">
+                <!-- Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="profile-avatar">
+                        <div class="avatar-large">
+                            <%= user.name ? user.name.charAt(0).toUpperCase() : '👤' %>
+                        </div>
+                    </div>
+                    <h2 class="profile-name"><%= user.name %></h2>
+                    <p class="profile-email"><%= user.email %></p>
+                    <p class="profile-joined">Joined: <%= new Date(user.created_at).toLocaleDateString() %></p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value"><%= stats.events_attended || 0 %></div>
+                            <div class="stat-label">Events</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value"><%= stats.problems_closed || 0 %></div>
+                            <div class="stat-label">Solved (Closed)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value"><%= badges.length || 0 %></div>
+                            <div class="stat-label">Badges</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="profile-content">
+                    
+                    <!-- Edit Profile Form -->
+                    <div class="profile-card">
+                        <h3 class="card-title">Edit Profile</h3>
+                        <form method="POST" action="/auth/profile" class="profile-form">
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    value="<%= user.email || '' %>"
+                                    class="form-control"
+                                    placeholder="you@example.com"
+                                >
+                                <div class="form-text">Changing email will update your login credentials</div>
+                            </div>
+                            
+                            <!-- Name -->
+                            <div class="form-group">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    value="<%= user.name || '' %>"
+                                    class="form-control"
+                                    placeholder="Your name"
+                                >
+                            </div>
+                            
+                            <!-- Bio -->
+                            <div class="form-group">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea 
+                                    id="bio" 
+                                    name="bio" 
+                                    rows="4"
+                                    class="form-control"
+                                    placeholder="Tell us about yourself and your environmental interests..."
+                                ><%= user.bio || '' %></textarea>
+                            </div>
+                            
+                            <hr class="divider">
+                            
+                            <!-- Change Password Section -->
+                            <h4>Change Password</h4>
+                            <div class="form-group">
+                                <label for="currentPassword" class="form-label">Current Password</label>
+                                <input 
+                                    type="password" 
+                                    id="currentPassword" 
+                                    name="currentPassword" 
+                                    class="form-control"
+                                    placeholder="Enter current password"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input 
+                                    type="password" 
+                                    id="newPassword" 
+                                    name="newPassword" 
+                                    class="form-control"
+                                    placeholder="Enter new password"
+                                >
+                                <div class="form-text">Minimum 8 characters with letters and numbers</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <input 
+                                    type="password" 
+                                    id="confirmPassword" 
+                                    name="confirmPassword" 
+                                    class="form-control"
+                                    placeholder="Confirm new password"
+                                >
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Save All Changes</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Skills Section -->
+                    <div class="profile-card">
+                        <h3 class="card-title">⭐ My Skills</h3>
+                        
+                        <!-- Current Skills -->
+                        <div class="skills-section">
+                            <h4>Current Skills</h4>
+                            <div class="skills-list">
+                                <% if (skills && skills.length > 0) { %>
+                                    <% skills.forEach(function(skill) { %>
+                                        <div class="skill-item">
+                                            <span class="skill-name"><%= skill.title %></span>
+                                            <form method="POST" action="/auth/profile/remove-skill" style="display: inline;">
+                                                <input type="hidden" name="skillTitle" value="<%= skill.title %>">
+                                                <button type="submit" class="skill-remove" title="Remove skill">×</button>
+                                            </form>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="empty-text">No skills added yet. Add your first skill below!</p>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <!-- Add New Skill -->
+                        <div class="skills-section">
+                            <h4>Add New Skill</h4>
+                            <form method="POST" action="/auth/profile/add-skill" class="add-skill-form">
+                                <select name="skillTitle" class="form-control" required>
+                                    <option value="">Select a skill...</option>
+                                    <% if (allSkills && allSkills.length > 0) { %>
+                                        <% allSkills.forEach(function(skill) { %>
+                                            <option value="<%= skill.title %>"><%= skill.title %></option>
+                                        <% }); %>
+                                    <% } %>
+                                </select>
+                                <button type="submit" class="btn btn-outline btn-small">+ Add Skill</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Badges Section -->
+                    <div class="profile-card">
+                        <h3 class="card-title">🏆 My Badges</h3>
+                        <div class="badges-grid">
+                            <% if (badges && badges.length > 0) { %>
+                                <% badges.forEach(function(badge) { %>
+                                    <div class="badge-card">
+                                        <div class="badge-icon">🏅</div>
+                                        <div class="badge-name"><%= badge.title %></div>
+                                        <div class="badge-desc"><%= badge.description %></div>
+                                        <div class="badge-date">Earned: <%= new Date(badge.earned_at).toLocaleDateString() %></div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <p class="empty-text">No badges yet. Join events and solve problems to earn badges!</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/notifications.js"></script>
+</body>
+</html>

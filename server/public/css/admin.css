@@ -1,0 +1,438 @@
+/* Admin Panel Styles */
+.admin-header {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Stat Cards */
+.stat-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    color: var(--gray);
+    font-size: 0.875rem;
+}
+
+.stat-detail {
+    font-size: 0.75rem;
+    color: var(--gray);
+    margin-top: var(--spacing-sm);
+}
+
+/* Admin Card */
+.admin-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--gray-light);
+}
+
+/* Admin Table */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: var(--spacing-sm);
+    text-align: left;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.admin-table th {
+    font-weight: 600;
+    color: var(--gray);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.admin-table tr:hover {
+    background: var(--gray-light);
+}
+
+/* Role badges */
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.role-admin {
+    background: #EF4444;
+    color: white;
+}
+
+.role-volunteer {
+    background: #10B981;
+    color: white;
+}
+
+.text-muted {
+    color: var(--gray);
+    font-size: 0.875rem;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.status-confirmed {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+.status-in_progress {
+    background: #E0E7FF;
+    color: #4338CA;
+}
+
+.status-completed {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.status-closed {
+    background: #E5E7EB;
+    color: #6B7280;
+}
+
+/* Header with back button */
+.admin-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.admin-header h1 {
+    margin: 0;
+}
+
+/* Stats row */
+.stats-row {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.stat-mini {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-mini-label {
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: capitalize;
+}
+
+.stat-mini-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.header-right {
+    margin-left: auto;
+}
+
+/* Search box */
+.search-box {
+    width: 250px;
+}
+
+/* Table responsive */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Button small */
+.btn-small {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+}
+
+/* Alert notifications */
+.alert-success {
+    background: #D1FAE5;
+    color: #059669;
+    border-left: 4px solid #10B981;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray);
+}
+
+.modal-close:hover {
+    color: var(--danger);
+}
+
+.admin-form {
+    padding: var(--spacing-lg);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+/* Filters Bar */
+.filters-bar {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.filter-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+}
+
+.filter-group .form-control {
+    min-width: 150px;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--gray);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending { background: #FEF3C7; color: #D97706; }
+.status-confirmed { background: #DBEAFE; color: #2563EB; }
+.status-in_progress { background: #E0E7FF; color: #4338CA; }
+.status-completed { background: #D1FAE5; color: #059669; }
+.status-closed { background: #E5E7EB; color: #6B7280; }
+
+/* Category badges for problems table */
+.category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.category-garbage { background: #8B5A2B20; color: #8B5A2B; }
+.category-water_pollution { background: #3B82F620; color: #3B82F6; }
+.category-air_pollution { background: #9CA3AF20; color: #6B7280; }
+.category-deforestation { background: #10B98120; color: #10B981; }
+.category-illegal_dumping { background: #EF444420; color: #EF4444; }
+.category-animal_rescue { background: #F59E0B20; color: #F59E0B; }
+.category-other { background: #6B728020; color: #4B5563; }
+
+/* Owners selector */
+.owners-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.owners-selector select {
+    flex: 1;
+}
+
+.owners-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.owner-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 8px 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+.owner-tag .remove-owner {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1.125rem;
+    padding: 0 4px;
+    border-radius: 50%;
+}
+
+.owner-tag .remove-owner:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.status-badge.status-pending {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.status-badge.status-approved {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.status-badge.status-rejected {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+/* Filter bar */
+.filter-bar {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.filter-chip {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    background: var(--gray-light);
+    color: var(--gray);
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.filter-chip:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--primary);
+}
+
+.filter-chip.active {
+    background: var(--primary);
+    color: white;
+}

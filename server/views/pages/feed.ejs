@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/feed.css">
+    <link rel="stylesheet" href="/css/gallery.css">
+    <link rel="stylesheet" href="/css/posts.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="feed-container">
+                <!-- Sidebar -->
+                <aside class="feed-sidebar">
+                    <!-- Поиск организаций (live search) -->
+                    <div class="sidebar-card">
+                        <h3>Search Organizations</h3>
+                        <div class="search-organizations">
+                            <input type="text" id="orgSearchInput" placeholder="Type to search organizations..." class="form-control">
+                            <div id="orgSearchResults" class="org-search-results">
+                                <!-- Результаты будут появляться здесь -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Main Feed -->
+                <div class="feed-main">
+                    <div class="feed-header">
+                        <h1>News Feed</h1>
+
+                        <div class="filter-buttons">
+                            <a href="/organizations/feed?filter=all" class="filter-btn <%= filter === 'all' ? 'active' : '' %>">All Organizations</a>
+                            <% if (isAuthenticated) { %>
+                                <a href="/organizations/feed?filter=following" class="filter-btn <%= filter === 'following' ? 'active' : '' %>">My Subscriptions</a>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Поиск по постам -->
+                        <form method="GET" action="/organizations/feed" class="post-search-form">
+                            <input type="hidden" name="filter" value="<%= filter %>">
+                            <input type="text" name="search" value="<%= search %>" placeholder="Search posts..." class="form-control">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                            <% if (search) { %>
+                                <a href="/organizations/feed?filter=<%= filter %>" class="btn btn-outline">Clear</a>
+                            <% } %>
+                        </form>
+                        
+                        <% if (search) { %>
+                            <p class="search-info">Showing results for: "<%= search %>"</p>
+                        <% } %>
+                    </div>
+                    
+                    <% if (posts && posts.length > 0) { %>
+                        <div class="posts-list">
+                            <% posts.forEach(function(post) { %>
+                                <div class="post-card" data-post-id="<%= post.id %>">
+                                    <div class="post-header">
+                                        <div class="post-org-info">
+                                            <a href="/organizations/<%= post.organization_id %>" class="post-org-name">
+                                                <%= post.organization_name %>
+                                            </a>
+                                        </div>
+                                        <% if (isAuthenticated && followingStatus[post.organization_id] !== undefined) { %>
+                                            <button class="follow-btn <%= followingStatus[post.organization_id] ? 'following' : '' %>" 
+                                                    data-org-id="<%= post.organization_id %>">
+                                                <%= followingStatus[post.organization_id] ? 'Unfollow' : 'Follow' %>
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <div class="post-content">
+                                        <p><%= post.content %></p>
+                                    </div>
+                                    
+                                    <% if (post.photos && post.photos.length > 0) { %>
+                                        <div class="post-photos">
+                                            <% post.photos.forEach(function(photo, idx) { %>
+                                                <img src="<%= photo %>" alt="Post photo" class="post-photo" data-photos='<%= JSON.stringify(post.photos) %>' data-index="<%= idx %>">
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+
+                                    <div class="post-header">
+                                        <div class="post-date">
+                                            <%= new Date(post.created_at).toLocaleDateString('ru-RU') %>
+                                        </div>
+                                        <% if (isStaff && isStaff[post.id]) { %>
+                                            <div class="post-actions">
+                                                <button class="btn-edit-post" data-post-id="<%= post.id %>" data-content="<%= post.content.replace(/"/g, '&quot;') %>" data-post-photos='<%= JSON.stringify(post.photos || []) %>'>✏️</button>
+                                                <button class="btn-delete-post" data-post-id="<%= post.id %>">🗑️</button>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                        
+                        <% if (hasMore) { %>
+                            <div class="load-more">
+                                <button id="loadMoreBtn" class="btn btn-outline">Load More</button>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div class="empty-feed">
+                            <p>No posts found</p>
+                            <% if (filter === 'following' && !isAuthenticated) { %>
+                                <p><a href="/auth/login">Login</a> to see posts from organizations you follow</p>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="app-data" 
+        data-current-user-id="<%= user ? user.id : '' %>" 
+        data-is-authenticated="<%= isAuthenticated %>">
+    </div>
+
+    <!-- Photo Gallery Modal -->
+    <div class="modal" id="photoGalleryModal" style="display: none;">
+        <div class="gallery-modal-content">
+            <div class="gallery-header">
+                <button class="gallery-close" id="closeGalleryModal">&times;</button>
+            </div>
+            <div class="gallery-container">
+                <button class="gallery-nav prev" id="galleryPrev">❮</button>
+                <div class="gallery-image-container">
+                    <img id="galleryImage" src="" alt="Gallery image">
+                </div>
+                <button class="gallery-nav next" id="galleryNext">❯</button>
+            </div>
+            <div class="gallery-counter" id="galleryCounter"></div>
+        </div>
+    </div>
+    
+    <script src="/js/gallery.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/posts.js"></script>
+    <script src="/js/feed.js"></script>
+</body>
+</html>

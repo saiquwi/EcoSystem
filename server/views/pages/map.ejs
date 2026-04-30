@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/map.css">
+    <link rel="stylesheet" href="/css/gallery.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="map-main">
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Sidebar for filters and problem form -->
+            <div class="map-sidebar">
+                <div class="sidebar-header">
+                    <h3>📍 Environmental Map</h3>
+                    <button class="sidebar-toggle" id="sidebarToggle">←</button>
+                </div>
+                
+                <div class="sidebar-content">
+                    <!-- Add Problem Button -->
+                    <button class="btn btn-primary btn-block" id="addProblemBtn">
+                        + Report a Problem
+                    </button>
+                    
+                    <!-- Filters -->
+                    <div class="filters-section">
+                        <h4>Filter by Category</h4>
+                        <div class="filter-buttons" id="categoryFilterButtons">
+                            <button class="filter-btn active" data-category="all">All</button>
+                            <button class="filter-btn" data-category="garbage">🗑️ Garbage</button>
+                            <button class="filter-btn" data-category="water_pollution">💧 Water Pollution</button>
+                            <button class="filter-btn" data-category="air_pollution">🌫️ Air Pollution</button>
+                            <button class="filter-btn" data-category="deforestation">🌲 Deforestation</button>
+                            <button class="filter-btn" data-category="illegal_dumping">🚛 Illegal Dumping</button>
+                            <button class="filter-btn" data-category="animal_rescue">🐾 Animal Rescue</button>
+                            <button class="filter-btn" data-category="other">📌 Other</button>
+                        </div>
+                    </div>
+                    <div class="filters-section">
+                        <h4>Filter by Status</h4>
+                        <div class="filter-buttons" id="statusFilterButtons">
+                            <button class="filter-btn active" data-status="all">All</button>
+                            <button class="filter-btn" data-status="pending">⏳ Pending</button>
+                            <button class="filter-btn" data-status="confirmed">✅ Confirmed</button>
+                            <button class="filter-btn" data-status="in_progress">🔧 In Progress</button>
+                            <button class="filter-btn" data-status="completed">📋 Completed</button>
+                            <button class="filter-btn" data-status="closed">🎉 Closed</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Problem List -->
+                    <div class="problems-list" id="problemsList">
+                        <h4>Nearby Problems</h4>
+                        <div class="problems-container" id="problemsContainer">
+                            <p class="empty-text">Loading problems...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Add Problem Modal -->
+    <div class="modal" id="problemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Report Environmental Problem</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="problemForm" class="problem-form">
+                <div class="form-group">
+                    <label for="problemTitle" class="form-label">Title *</label>
+                    <input type="text" id="problemTitle" name="title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="problemCategory" class="form-label">Category *</label>
+                    <select id="problemCategory" name="category" class="form-control" required>
+                        <option value="">Select category...</option>
+                        <option value="garbage">🗑️ Garbage</option>
+                        <option value="water_pollution">💧 Water Pollution</option>
+                        <option value="air_pollution">🌫️ Air Pollution</option>
+                        <option value="deforestation">🌲 Deforestation</option>
+                        <option value="illegal_dumping">🚛 Illegal Dumping</option>
+                        <option value="animal_rescue">🐾 Animal Rescue</option>
+                        <option value="other">📌 Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="problemDescription" class="form-label">Description (Optional)</label>
+                    <textarea id="problemDescription" name="description" rows="3" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="problemSeverity" class="form-label">Severity (1-10)</label>
+                    <input type="range" id="problemSeverity" name="severity" min="1" max="10" value="5">
+                    <div class="severity-value" id="severityValue">5</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Location *</label>
+                    <button type="button" id="chooseLocationBtn" class="btn btn-outline btn-block">📍 Choose location on the map</button>
+                    <div class="location-info" id="locationInfo">
+                        <p class="text-muted">No location selected</p>
+                    </div>
+                    <input type="hidden" id="problemLat" name="lat" required>
+                    <input type="hidden" id="problemLng" name="lng" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="problemPhotos" class="form-label">Photos (Max 5)</label>
+                    <div class="file-input-wrapper">
+                        <button type="button" id="choosePhotosBtn" class="btn btn-outline">📷 Choose files</button>
+                        <span class="file-count" id="fileCount">0 files selected</span>
+                    </div>
+                    <input type="file" id="problemPhotos" name="photos" multiple accept="image/*" style="display: none;">
+                    <div class="photo-preview" id="photoPreview"></div>
+                    <div class="form-text" id="photoError"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Submit Report</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Problem Details Modal -->
+    <div class="modal" id="problemDetailsModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="detailTitle">Problem Details</h3>
+                <button class="modal-close" id="closeDetailsModal">&times;</button>
+            </div>
+            <div class="modal-body" id="problemDetailsBody">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Gallery Modal -->
+    <div class="modal" id="photoGalleryModal" style="display: none;">
+        <div class="gallery-modal-content">
+            <div class="gallery-header">
+                <button class="gallery-close" id="closeGalleryModal">&times;</button>
+            </div>
+            <div class="gallery-container">
+                <button class="gallery-nav prev" id="galleryPrev">❮</button>
+                <div class="gallery-image-container">
+                    <img id="galleryImage" src="" alt="Gallery image">
+                </div>
+                <button class="gallery-nav next" id="galleryNext">❯</button>
+            </div>
+            <div class="gallery-counter" id="galleryCounter"></div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/gallery.js"></script>
+    <script src="/js/map.js"></script>
+</body>
+</html>

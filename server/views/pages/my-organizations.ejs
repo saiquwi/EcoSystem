@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/my-organizations.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>My Organizations</h1>
+                <button id="createOrgBtn" class="btn btn-primary">+ New Organization</button>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="organizations">My Organizations</button>
+                <button class="tab-btn" data-tab="requests">My Requests</button>
+            </div>
+            
+            <!-- Tab: Organizations -->
+            <div id="organizationsTab" class="tab-content active">
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Total</span>
+                        <span class="stat-mini-value"><%= stats.total %></span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Owner</span>
+                        <span class="stat-mini-value"><%= stats.owner %></span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Moderator</span>
+                        <span class="stat-mini-value"><%= stats.moderator %></span>
+                    </div>
+                </div>
+                
+                <!-- Filter by Role -->
+                <div class="filter-bar">
+                    <button class="filter-chip active" data-filter="all">All</button>
+                    <button class="filter-chip" data-filter="owner">Owner</button>
+                    <button class="filter-chip" data-filter="moderator">Moderator</button>
+                </div>
+                
+                <!-- Organizations List -->
+                <div id="organizationsList" class="organizations-list">
+                    <% if (organizations && organizations.length > 0) { %>
+                        <% organizations.forEach(function(org) { %>
+                            <div class="org-card" data-position="<%= org.position %>">
+                                <div class="org-card-header">
+                                    <h3 class="org-name"><%= org.name %></h3>
+                                    <span class="role-badge role-<%= org.position %>">
+                                        <%= org.position === 'owner' ? 'Owner' : 'Moderator' %>
+                                    </span>
+                                </div>
+                                <div class="org-card-body">
+                                    <p class="org-description"><%= org.description || 'No description' %></p>
+                                    <p class="org-email"><%= org.email %></p>
+                                    <% if (org.website) { %>
+                                        <p class="org-website"><a href="<%= org.website %>" target="_blank"><%= org.website %></a></p>
+                                    <% } %>
+                                </div>
+                                <div class="org-card-actions">
+                                    <a href="/organizations/<%= org.id %>?from=my-organizations" class="btn btn-outline btn-small">View</a>
+                                    <button class="btn btn-primary btn-small edit-org" data-org-id="<%= org.id %>" data-org-name="<%= org.name %>" data-is-owner="<%= org.position === 'owner' %>">
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <p>You don't have any organizations yet.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Tab: Requests -->
+            <div id="requestsTab" class="tab-content">
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Pending</span>
+                        <span class="stat-mini-value" id="pendingCount">0</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Rejected</span>
+                        <span class="stat-mini-value" id="rejectedCount">0</span>
+                    </div>
+                </div>
+                
+                <!-- Filter by Status -->
+                <div class="filter-bar">
+                    <button class="filter-chip active" data-req-filter="all">All</button>
+                    <button class="filter-chip" data-req-filter="pending">Pending</button>
+                    <button class="filter-chip" data-req-filter="rejected">Rejected</button>
+                </div>
+                
+                <!-- Requests List -->
+                <div id="requestsList" class="requests-list">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Create Organization Request Modal -->
+    <div class="modal" id="createOrgModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Organization</h3>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <form id="createOrgForm" class="admin-form">
+                <div class="form-group">
+                    <label for="name" class="form-label">Organization Name *</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="website" class="form-label">Website</label>
+                    <input type="url" id="website" name="website" class="form-control" placeholder="https://example.org">
+                    <div class="form-text">Optional</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" rows="3" class="form-control" placeholder="Tell us about your organization..."></textarea>
+                    <div class="form-text">Optional. Maximum 1000 characters</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Organization Modal -->
+    <div class="modal" id="editOrgModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="editModalTitle">Edit Organization</h3>
+                <button class="modal-close" id="closeEditModalBtn">&times;</button>
+            </div>
+            <form id="editOrgForm" class="admin-form">
+                <input type="hidden" id="editOrgId" name="organizationId">
+                <input type="hidden" id="userRole" name="userRole">
+                
+                <!-- Owner-only fields -->
+                <div id="ownerFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="editName" class="form-label">Organization Name *</label>
+                        <input type="text" id="editName" name="name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editEmail" class="form-label">Email *</label>
+                        <input type="email" id="editEmail" name="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editWebsite" class="form-label">Website</label>
+                        <input type="url" id="editWebsite" name="website" class="form-control" placeholder="https://example.org">
+                        <div class="form-text">Optional</div>
+                    </div>
+                </div>
+                
+                <!-- Description (editable by both) -->
+                <div class="form-group">
+                    <label for="editDescription" class="form-label">Description</label>
+                    <textarea id="editDescription" name="description" rows="4" class="form-control"></textarea>
+                    <div class="form-text">Maximum 1000 characters</div>
+                </div>
+                
+                <!-- Moderators Section (Owner only) -->
+                <div class="form-group" id="moderatorsSection" style="display: none;">
+                    <label class="form-label">Moderators</label>
+                    <div id="moderatorsList" class="moderators-list"></div>
+                    <div class="add-moderator-form">
+                        <select id="newModeratorSelect" class="form-control">
+                            <option value="">Select user...</option>
+                        </select>
+                        <button type="button" id="addModeratorBtn" class="btn btn-outline btn-small">+ Add</button>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelEditModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="/js/notifications.js"></script>
+    <script src="/js/my-organizations.js"></script>
+</body>
+</html>

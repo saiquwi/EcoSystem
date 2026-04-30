@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-icon">🌱</div>
+                    <h1 class="auth-title">Create Account</h1>
+                    <p class="auth-subtitle">Join the EcoSystem community</p>
+                </div>
+                
+                <% if (locals.errors && errors.general) { %>
+                    <div class="alert alert-error">
+                        <strong>Error!</strong>
+                        <% if (Array.isArray(errors.general)) { %>
+                            <% errors.general.forEach(function(err) { %>
+                                <div>• <%= err %></div>
+                            <% }); %>
+                        <% } else { %>
+                            <div><%= errors.general %></div>
+                        <% } %>
+                    </div>
+                <% } %>
+                
+                <form method="POST" action="/auth/register" class="auth-form">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address *</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            value="<%= formData.email || '' %>"
+                            class="form-control <%= errors && errors.email ? 'is-invalid' : '' %>"
+                            placeholder="you@example.com"
+                            required
+                        >
+                        <% if (errors && errors.email) { %>
+                            <div class="invalid-feedback">
+                                <% if (Array.isArray(errors.email)) { %>
+                                    <% errors.email.forEach(function(err) { %>
+                                        <div>• <%= err %></div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div><%= errors.email %></div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password *</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-control <%= errors && errors.password ? 'is-invalid' : '' %>"
+                            placeholder="Create a strong password"
+                            required
+                        >
+                        <% if (errors && errors.password) { %>
+                            <div class="invalid-feedback">
+                                <% if (Array.isArray(errors.password)) { %>
+                                    <% errors.password.forEach(function(err) { %>
+                                        <div>• <%= err %></div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div><%= errors.password %></div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                        <div class="form-text">Minimum 8 characters with letters, numbers and special characters</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            class="form-control <%= errors && errors.confirmPassword ? 'is-invalid' : '' %>"
+                            placeholder="Confirm your password"
+                            required
+                        >
+                        <% if (errors && errors.confirmPassword) { %>
+                            <div class="invalid-feedback">
+                                <% if (Array.isArray(errors.confirmPassword)) { %>
+                                    <% errors.confirmPassword.forEach(function(err) { %>
+                                        <div>• <%= err %></div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div><%= errors.confirmPassword %></div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            value="<%= formData.name || '' %>"
+                            class="form-control <%= errors && errors.name ? 'is-invalid' : '' %>"
+                            placeholder="John Doe"
+                        >
+                        <% if (errors && errors.name) { %>
+                            <div class="invalid-feedback">
+                                <% if (Array.isArray(errors.name)) { %>
+                                    <% errors.name.forEach(function(err) { %>
+                                        <div>• <%= err %></div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div><%= errors.name %></div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                        <div class="form-text">Optional. Can contain letters, spaces, hyphens, dots, and apostrophes</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea 
+                            id="bio" 
+                            name="bio" 
+                            rows="3"
+                            class="form-control <%= errors && errors.bio ? 'is-invalid' : '' %>"
+                            placeholder="Tell us about yourself..."
+                        ><%= formData.bio || '' %></textarea>
+                        <% if (errors && errors.bio) { %>
+                            <div class="invalid-feedback">
+                                <% if (Array.isArray(errors.bio)) { %>
+                                    <% errors.bio.forEach(function(err) { %>
+                                        <div>• <%= err %></div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div><%= errors.bio %></div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                        <div class="form-text">Optional. Maximum 500 characters</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block btn-large">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="divider"></div>
+                
+                <p class="auth-footer">
+                    Already have an account? <a href="/auth/login">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="admin-header">
+                <div class="header-left">
+                    <a href="/admin" class="btn btn-outline btn-small">← Back to Panel</a>
+                    <h1>Manage Organizations</h1>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="filters-bar">
+                <div class="filter-group search-group">
+                    <label>Search:</label>
+                    <input type="text" id="searchOrganizations" placeholder="Search by name or email..." class="form-control">
+                </div>
+                <div class="filter-group">
+                    <button id="newOrgBtn" class="btn btn-primary">+ New Organization</button>
+                </div>
+            </div>
+            
+            <!-- Organizations Table -->
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3>All Organizations (<span id="orgCount"><%= organizations.length %></span>)</h3>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="admin-table" id="organizationsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Website</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% organizations.forEach(function(org) { %>
+                                <tr data-name="<%= org.name %>" data-email="<%= org.email %>">
+                                    <td><%= org.id %></td>
+                                    <td><%= org.name.length > 50 ? org.name.substring(0, 50) + '...' : org.name %></td>
+                                    <td><%= org.email %></td>
+                                    <td><%= org.website || '-' %></td>
+                                    <td><%= org.created_at ? new Date(org.created_at).toLocaleDateString('ru-RU') : '-' %></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-small edit-org" data-org-id="<%= org.id %>" data-org-name="<%= org.name %>">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-danger btn-small delete-org" data-org-id="<%= org.id %>" data-org-name="<%= org.name %>">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <% if (organizations.length === 0) { %>
+                    <div class="empty-state">
+                        <p>No organizations found</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Organization Modal -->
+    <div class="modal" id="orgModal" data-show="<%= showModal ? 'true' : 'false' %>">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="orgModalTitle">Organization Info</h3>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <form id="orgForm" method="POST" class="admin-form">
+                <input type="hidden" id="orgId" name="organizationId">
+
+                <div class="form-group">
+                    <label for="name" class="form-label">Organization Name *</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        value="<%= formData.name || '' %>"
+                        class="form-control <%= errors && errors.name ? 'is-invalid' : '' %>"
+                        placeholder="Greenpeace International"
+                        required
+                    >
+                    <% if (errors && errors.name) { %>
+                        <div class="invalid-feedback">
+                            <% if (Array.isArray(errors.name)) { %>
+                                <% errors.name.forEach(function(err) { %>
+                                    <div>• <%= err %></div>
+                                <% }); %>
+                            <% } else { %>
+                                <div><%= errors.name %></div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email *</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        autocomplete="email"
+                        value="<%= formData.email || '' %>"
+                        class="form-control <%= errors && errors.email ? 'is-invalid' : '' %>"
+                        placeholder="contact@organization.org"
+                        required
+                    >
+                    <% if (errors && errors.email) { %>
+                        <div class="invalid-feedback">
+                            <% if (Array.isArray(errors.email)) { %>
+                                <% errors.email.forEach(function(err) { %>
+                                    <div>• <%= err %></div>
+                                <% }); %>
+                            <% } else { %>
+                                <div><%= errors.email %></div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label for="website" class="form-label">Website</label>
+                    <input 
+                        type="url" 
+                        id="website" 
+                        name="website" 
+                        value="<%= formData.website || '' %>"
+                        class="form-control <%= errors && errors.website ? 'is-invalid' : '' %>"
+                        placeholder="https://example.org"
+                    >
+                    <% if (errors && errors.website) { %>
+                        <div class="invalid-feedback">
+                            <% if (Array.isArray(errors.website)) { %>
+                                <% errors.website.forEach(function(err) { %>
+                                    <div>• <%= err %></div>
+                                <% }); %>
+                            <% } else { %>
+                                <div><%= errors.website %></div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                    <div class="form-text">Optional</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="3"
+                        class="form-control <%= errors && errors.description ? 'is-invalid' : '' %>"
+                        placeholder="Tell us about this organization..."
+                    ><%= formData.description || '' %></textarea>
+                    <% if (errors && errors.description) { %>
+                        <div class="invalid-feedback">
+                            <% if (Array.isArray(errors.description)) { %>
+                                <% errors.description.forEach(function(err) { %>
+                                    <div>• <%= err %></div>
+                                <% }); %>
+                            <% } else { %>
+                                <div><%= errors.description %></div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                    <div class="form-text">Optional. Maximum 1000 characters</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Owners</label>
+                    <div class="owners-selector">
+                        <select id="ownerSelect" class="form-control">
+                            <option value="">Select user to add as owner...</option>
+                            <% users.forEach(function(user) { %>
+                                <option value="<%= user.id %>" data-name="<%= user.name || user.email %>">
+                                    <%= user.name || user.email %> (<%= user.email %>)
+                                </option>
+                            <% }); %>
+                        </select>
+                        <button type="button" id="addOwnerBtn" class="btn btn-outline btn-small">+ Add</button>
+                    </div>
+                    <div id="ownersList" class="owners-list">
+                        <!-- Выбранные владельцы будут добавлены сюда -->
+                    </div>
+                    <input type="hidden" id="ownersIds" name="ownersIds" value="">
+                    <div class="form-text">Select one or more users as owners of this organization</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Organization</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="/js/admin-organizations.js"></script>
+    <script src="/js/notifications.js"></script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+/* Map Page Styles */
+.map-main {
+    position: fixed;
+    top: 73px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.map-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+#map {
+    flex: 1;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Sidebar */
+.map-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 320px;
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    z-index: 2;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-sidebar.collapsed {
+    transform: translateX(-275px);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-light);
+    background: var(--white);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: transform 0.3s ease;
+}
+
+.map-sidebar.collapsed .sidebar-toggle {
+    transform: rotate(180deg);
+}
+
+.sidebar-toggle:hover {
+    background: var(--gray-light);
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+}
+
+/* Filters */
+.filters-section {
+    margin-top: var(--spacing-lg);
+}
+
+.filters-section h4 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.875rem;
+    color: var(--gray);
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.filter-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--gray-light);
+    background: var(--white);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+
+/* Problems List */
+.problems-list {
+    margin-top: var(--spacing-lg);
+}
+
+.problems-list h4 {
+    margin-bottom: var(--spacing-md);
+    font-size: 0.875rem;
+    color: var(--gray);
+}
+
+.problems-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.problem-item {
+    padding: var(--spacing-sm);
+    background: var(--gray-light);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.problem-item:hover {
+    background: rgba(16, 185, 129, 0.1);
+    transform: translateX(4px);
+}
+
+.problem-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.problem-category {
+    font-size: 0.75rem;
+    color: var(--gray);
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--white);
+    border-radius: 9999px;
+    margin-top: var(--spacing-xs);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.modal-large {
+    max-width: 700px;
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.problem-form {
+    padding: var(--spacing-lg);
+}
+
+.location-info {
+    padding: var(--spacing-sm);
+    background: var(--gray-light);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+.severity-value {
+    text-align: center;
+    margin-top: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.file-count {
+    color: var(--gray);
+    font-size: 0.875rem;
+}
+
+.photo-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.photo-preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--gray-light);
+}
+
+.photo-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-remove:hover {
+    background: var(--danger);
+}
+
+.text-muted {
+    color: var(--gray);
+    font-size: 0.875rem;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.btn-outline.disabled,
+.btn-outline:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Custom Marker Colors */
+.marker-garbage { background: #8B5A2B; }
+.marker-water_pollution { background: #3B82F6; }
+.marker-air_pollution { background: #9CA3AF; }
+.marker-deforestation { background: #10B981; }
+.marker-illegal_dumping { background: #EF4444; }
+.marker-animal_rescue { background: #F59E0B; }
+.marker-other { background: #6B7280; }
+
+/* Large Modal for Problem Details */
+.modal-large {
+    max-width: 700px;
+    width: 90%;
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Problem Details */
+.problem-detail-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.problem-detail-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+}
+
+.problem-detail-meta {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.problem-detail-meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--gray);
+    font-size: 0.875rem;
+}
+
+.problem-detail-category {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.problem-detail-category.garbage { background: #8B5A2B20; color: #8B5A2B; }
+.problem-detail-category.water_pollution { background: #3B82F620; color: #3B82F6; }
+.problem-detail-category.air_pollution { background: #9CA3AF20; color: #6B7280; }
+.problem-detail-category.deforestation { background: #10B98120; color: #10B981; }
+.problem-detail-category.illegal_dumping { background: #EF444420; color: #EF4444; }
+.problem-detail-category.animal_rescue { background: #F59E0B20; color: #F59E0B; }
+
+/* Status colors for filters */
+.filter-btn[data-status="pending"] { border-left-color: #F59E0B; }
+.filter-btn[data-status="confirmed"] { border-left-color: #3B82F6; }
+.filter-btn[data-status="in_progress"] { border-left-color: #8B5CF6; }
+.filter-btn[data-status="completed"] { border-left-color: #10B981; }
+.filter-btn[data-status="closed"] { border-left-color: #6B7280; }
+
+.problem-detail-description {
+    background: var(--gray-light);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+}
+
+.problem-detail-location {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: #f0f9ff;
+    border-radius: var(--radius-md);
+}
+
+.problem-detail-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-md);
+}
+
+.problem-detail-stat {
+    text-align: center;
+    flex: 1;
+}
+
+.problem-detail-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.problem-detail-stat-label {
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.problem-detail-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending { background: #FEF3C7; color: #D97706; }
+.status-confirmed { background: #DBEAFE; color: #2563EB; }
+.status-in_progress { background: #E0E7FF; color: #4338CA; }
+.status-completed { background: #D1FAE5; color: #059669; }
+
+.problem-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--gray-light);
+}
+
+.confirmations-list {
+    margin-top: var(--spacing-md);
+}
+
+.confirmation-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.confirmation-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+.confirmation-name {
+    font-weight: 500;
+    flex: 1;
+}
+
+.confirmation-date {
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+/* Popup button */
+.popup-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.popup-btn:hover {
+    background: var(--primary-dark);
+}
+
+/* Alert info */
+.alert-info {
+    background: #DBEAFE;
+    color: #1E40AF;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+.btn-success {
+    background: #10B981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+/* Photos Grid */
+.problem-detail-photos {
+    margin-bottom: var(--spacing-lg);
+}
+
+.problem-detail-photos strong {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+}
+
+.photos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.photo-item {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--gray-light);
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+
+.photo-item img:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .map-sidebar {
+        width: 280px;
+    }
+    
+    .map-sidebar.collapsed {
+        transform: translateX(-250px);
+    }
+}

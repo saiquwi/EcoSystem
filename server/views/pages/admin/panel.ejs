@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="admin-header">
+                <h1>Admin Panel</h1>
+                <p>Welcome back, <%= user.name %>!</p>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value"><%= userStats.total_users || 0 %></div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-detail">Volunteers: <%= userStats.volunteers || 0 %></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏢</div>
+                    <div class="stat-value"><%= organizationStats.total || 0 %></div>
+                    <div class="stat-label">Organizations</div>
+                    <div class="stat-detail">Pending requests: <%= pendingRequests || 0 %></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value"><%= problemStats.total || 0 %></div>
+                    <div class="stat-label">Total Problems</div>
+                    <div class="stat-detail">Pending: <%= problemStats.pending || 0 %></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value"><%= problemStats.avg_severity ? problemStats.avg_severity.toFixed(1) : 0 %></div>
+                    <div class="stat-label">Avg Severity</div>
+                    <div class="stat-detail">Out of 10</div>
+                </div>
+            </div>
+            
+            <!-- Recent Users -->
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3>Recent Users</h3>
+                    <a href="/admin/users" class="btn btn-outline btn-small">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr>
+                    </thead>
+                    <tbody>
+                        <% recentUsers.forEach(function(u) { %>
+                            <tr>
+                                <td><%= u.id %></td>
+                                <td><%= u.name || '-' %></td>
+                                <td><%= u.email %></td>
+                                <td><span class="role-badge role-<%= u.role %>"><%= u.role %></span></td>
+                                <td><%= new Date(u.created_at).toLocaleDateString('ru-RU') %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Organizations -->
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3>Recent Organizations</h3>
+                    <a href="/admin/organizations" class="btn btn-outline btn-small">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Website</th><th>Created</th></tr>
+                    </thead>
+                    <tbody>
+                        <% if (recentOrganizations && recentOrganizations.length > 0) { %>
+                            <% recentOrganizations.forEach(function(org) { %>
+                                <tr>
+                                    <td><%= org.id %></td>
+                                    <td><%= org.name.length > 40 ? org.name.substring(0, 40) + '...' : org.name %></td>
+                                    <td><%= org.email %></td>
+                                    <td><%= org.website || '-' %></td>
+                                    <td><%= org.created_at ? new Date(org.created_at).toLocaleDateString('ru-RU') : '-' %></td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr><td colspan="5" class="empty-text">No organizations yet</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Organization Creation Requests -->
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3>Recent Organization Creation Requests</h3>
+                    <a href="/admin/organization-requests" class="btn btn-outline btn-small">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Organization Name</th>
+                            <th>Requested By</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (recentRequests && recentRequests.length > 0) { %>
+                            <% recentRequests.forEach(function(req) { %>
+                                <tr>
+                                    <td><%= req.id %></td>
+                                    <td><%= req.name %></td>
+                                    <td><%= req.user_name %> (<%= req.user_email %>)</td>
+                                    <td><span class="status-badge status-<%= req.status %>"><%= req.status %></span></td>
+                                    <td><%= new Date(req.created_at).toLocaleDateString('ru-RU') %></td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="empty-text">No pending requests</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Recent Problems -->
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3>Recent Problems</h3>
+                    <a href="/admin/problems" class="btn btn-outline btn-small">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>Title</th><th>Category</th><th>Status</th><th>Severity</th><th>Created</th></tr>
+                    </thead>
+                    <tbody>
+                        <% recentProblems.forEach(function(p) { %>
+                            <tr>
+                                <td><%= p.id %></td>
+                                <td><%= p.title %></td>
+                                <td><%= p.category || '-' %></td>
+                                <td><span class="status-badge status-<%= p.status %>"><%= p.status %></span></td>
+                                <td><%= p.severity %></td>
+                                <td><%= new Date(p.created_at).toLocaleDateString('ru-RU') %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

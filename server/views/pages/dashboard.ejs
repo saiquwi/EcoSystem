@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <!-- Приветствие -->
+            <div class="welcome-section">
+                <h1 class="welcome-title">Welcome back, <%= user.name %>! 👋</h1>
+                <p class="welcome-text">Here's what's happening with your environmental impact</p>
+            </div>
+            
+            <!-- Статистика -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🌍</div>
+                    <div class="stat-value"><%= stats.problems_confirmed || 0 %></div>
+                    <div class="stat-label">Problems Confirmed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value"><%= stats.problems_closed || 0 %></div>
+                    <div class="stat-label">Problems Solved (Closed)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎉</div>
+                    <div class="stat-value"><%= stats.events_attended || 0 %></div>
+                    <div class="stat-label">Events Attended</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value"><%= stats.problems_created || 0 %></div>
+                    <div class="stat-label">Problems Reported</div>
+                </div>
+            </div>
+            
+            <!-- Две колонки -->
+            <div class="dashboard-grid">
+                <!-- Мои навыки -->
+                <div class="dashboard-card">
+                    <h3 class="card-title">⭐ My Skills</h3>
+                    <div class="skills-list">
+                        <% if (skills && skills.length > 0) { %>
+                            <% skills.forEach(function(skill) { %>
+                                <span class="skill-tag"><%= skill.title %></span>
+                            <% }); %>
+                        <% } else { %>
+                            <p class="empty-text">No skills added yet</p>
+                        <% } %>
+                    </div>
+                    <a href="/auth/profile" class="btn btn-outline btn-small">Edit Skills</a>
+                </div>
+                
+                <!-- Мои бейджи -->
+                <div class="dashboard-card">
+                    <h3 class="card-title">🏆 Recent Badges</h3>
+                    <div class="badges-list">
+                        <% if (badges && badges.length > 0) { %>
+                            <% badges.slice(0, 5).forEach(function(badge) { %>
+                                <div class="badge-item">
+                                    <span class="badge-icon">🏅</span>
+                                    <div class="badge-info">
+                                        <div class="badge-name"><%= badge.title %></div>
+                                        <div class="badge-date">Earned: <%= new Date(badge.earned_at).toLocaleDateString() %></div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p class="empty-text">No badges yet. Join events and take action on problems to earn badges!</p>
+                        <% } %>
+                    </div>
+                    <a href="/auth/profile" class="btn btn-outline btn-small">View All</a>
+                </div>
+            </div>
+            
+            <!-- Быстрые действия -->
+            <div class="quick-actions">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="/map" class="action-card">
+                        <div class="action-icon">📍</div>
+                        <div class="action-title">Report Problem</div>
+                        <div class="action-desc">Mark an environmental issue on the map</div>
+                    </a>
+                    <a href="/events" class="action-card">
+                        <div class="action-icon">📅</div>
+                        <div class="action-title">Find Events</div>
+                        <div class="action-desc">Join volunteer activities near you</div>
+                    </a>
+                    <a href="/auth/profile" class="action-card">
+                        <div class="action-icon">👤</div>
+                        <div class="action-title">Update Profile</div>
+                        <div class="action-desc">Add skills and edit your information</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

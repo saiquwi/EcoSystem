@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSystem - Environmental Volunteer Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1 class="hero-title">
+                    Together for a<br>Cleaner Planet
+                </h1>
+                <p class="hero-subtitle">
+                    Join thousands of volunteers making a real impact on our environment.
+                    Report issues, join events, and track your contribution.
+                </p>
+                <div class="hero-buttons" style="display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/map" class="btn btn-primary btn-large">Explore Map →</a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="container">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon">📍</div>
+                    <h3 class="card-title">Report Issues</h3>
+                    <p class="card-text">Spot an environmental problem? Mark it on the map and alert the community.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🤝</div>
+                    <h3 class="card-title">Join Events</h3>
+                    <p class="card-text">Participate in cleanups, tree planting, and educational events near you.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏆</div>
+                    <h3 class="card-title">Earn Rewards</h3>
+                    <p class="card-text">Get points, badges, and recognition for your environmental impact.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="container">
+            <div class="stats">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">1,234+</div>
+                        <div class="stat-label">Issues Resolved</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5,678+</div>
+                        <div class="stat-label">Active Volunteers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">456+</div>
+                        <div class="stat-label">Community Events</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Cities Covered</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

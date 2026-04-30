@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EcoSystem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/organization.css">
+    <link rel="stylesheet" href="/css/gallery.css">
+    <link rel="stylesheet" href="/css/posts.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="main">
+        <div class="container">
+            <div class="back-nav">
+                <a href="<%= returnTo %>" class="btn btn-outline btn-small">
+                    ← Back
+                </a>
+            </div>
+
+            <!-- Organization Header -->
+            <div class="org-header">
+                <div class="org-info">
+                    <h1 class="org-name"><%= organization.name %></h1>
+                    <p class="org-email"><%= organization.email %></p>
+                    <% if (organization.website) { %>
+                        <p class="org-website">🌐 <a href="<%= organization.website %>" target="_blank"><%= organization.website %></a></p>
+                    <% } %>
+                    <p class="org-description"><%= organization.description || 'No description provided' %></p>
+                </div>
+                <div class="org-actions">
+                    <% if (isAuthenticated) { %>
+                        <button class="follow-btn <%= isFollowing ? 'following' : '' %>" data-org-id="<%= organization.id %>">
+                            <%= isFollowing ? 'Unfollow' : 'Follow' %>
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Events Section -->
+            <% if (events && events.length > 0) { %>
+                <div class="org-section">
+                    <h2>Upcoming Events</h2>
+                    <div class="events-list">
+                        <% events.forEach(function(event) { %>
+                            <div class="event-card">
+                                <h3 class="event-title"><%= event.title %></h3>
+                                <p class="event-date">📅 <%= new Date(event.event_date).toLocaleDateString('ru-RU') %></p>
+                                <p class="event-description"><%= event.description || 'No description' %></p>
+                                <% if (event.max_volunteers) { %>
+                                    <p class="event-volunteers">👥 Volunteers: <%= event.current_volunteers || 0 %> / <%= event.max_volunteers %></p>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (isStaff) { %>
+                <div class="org-section">
+                    <h2>Create Post</h2>
+                    <form id="createPostForm" class="create-post-form">
+                        <input type="hidden" id="postOrgId" value="<%= organization.id %>">
+                        <div class="form-group">
+                            <textarea id="postContent" name="content" rows="3" class="form-control" placeholder="What's happening?" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="file-input-wrapper">
+                                <input type="file" id="postPhotos" name="photos" multiple accept="image/*" style="display: none;">
+                                <button type="button" id="selectPhotosBtn" class="btn btn-outline">Choose Photos</button>
+                                <span id="postFileCount" class="file-count">0 / 5 files selected</span>
+                            </div>
+                            <div id="postPhotoPreview" class="photo-preview"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post</button>
+                    </form>
+                </div>
+            <% } %>
+            
+            <!-- Posts Section -->
+            <div class="org-section">
+                <h2>Posts</h2>
+                <% if (posts && posts.length > 0) { %>
+                    <div class="posts-list">
+                        <% posts.forEach(function(post) { %>
+                            <div class="post-card">
+                                <div class="post-content">
+                                    <p><%= post.content %></p>
+                                </div>
+                                <% if (post.photos && post.photos.length > 0) { %>
+                                    <div class="post-photos">
+                                        <% post.photos.forEach(function(photo, idx) { %>
+                                            <img src="<%= photo %>" alt="Post photo" class="post-photo" data-photos='<%= JSON.stringify(post.photos) %>' data-index="<%= idx %>">
+                                        <% }); %>
+                                    </div>
+                                <% } %>
+                                <div class="post-header">
+                                    <div class="post-date"><%= new Date(post.created_at).toLocaleDateString('ru-RU') %></div>
+                                    <% if (isStaff) { %>
+                                        <div class="post-actions">
+                                            <button class="btn-edit-post" data-post-id="<%= post.id %>" data-content="<%= post.content.replace(/"/g, '&quot;') %>" data-post-photos='<%= JSON.stringify(post.photos || []) %>'>✏️</button>
+                                            <button class="btn-delete-post" data-post-id="<%= post.id %>">🗑️</button>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="empty-text">No posts yet</p>
+                <% } %>
+            </div>
+        </div>
+    </main>
+    
+    <div id="app-data" 
+         data-current-user-id="<%= user ? user.id : '' %>" 
+         data-is-authenticated="<%= isAuthenticated %>"
+         style="display: none;">
+    </div>
+
+    <!-- Photo Gallery Modal -->
+    <div class="modal" id="photoGalleryModal" style="display: none;">
+        <div class="gallery-modal-content">
+            <div class="gallery-header">
+                <button class="gallery-close" id="closeGalleryModal">&times;</button>
+            </div>
+            <div class="gallery-container">
+                <button class="gallery-nav prev" id="galleryPrev">❮</button>
+                <div class="gallery-image-container">
+                    <img id="galleryImage" src="" alt="Gallery image">
+                </div>
+                <button class="gallery-nav next" id="galleryNext">❯</button>
+            </div>
+            <div class="gallery-counter" id="galleryCounter"></div>
+        </div>
+    </div>
+    
+    <script src="/js/gallery.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/posts.js"></script>
+    <script src="/js/organization.js"></script>
+</body>
+</html>
