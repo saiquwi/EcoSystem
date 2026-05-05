@@ -103,7 +103,8 @@ CREATE TABLE events (
     status VARCHAR(50) DEFAULT 'planned',
     organization_id INTEGER REFERENCES organizations(id) ON DELETE CASCADE,
     problem_id INTEGER REFERENCES problems(id) ON DELETE SET NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    timezone_offset INTEGER DEFAULT 0
 );
 
 CREATE TABLE event_participants (

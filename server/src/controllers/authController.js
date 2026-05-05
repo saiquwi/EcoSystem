@@ -2,6 +2,20 @@ const User = require('../models/User');
 const BadgeService = require('../services/badgeService');
 
 class AuthController {
+    async getCurrentUser(req, res) {
+        if (!req.session.userId) {
+            return res.json({ user: null });
+        }
+
+        try {
+            const user = await User.findById(req.session.userId);
+            res.json({ user });
+        } catch (error) {
+            console.error('Get current user error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
     getRegister(req, res) {
         res.render('pages/auth/register', {
             title: 'Register',

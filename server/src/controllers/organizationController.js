@@ -1,10 +1,31 @@
+const User = require('../models/User');
 const Organization = require('../models/Organization');
 const OrganizationPost = require('../models/OrganizationPost');
+const Event = require('../models/Event');
+const { isAuthenticated } = require('../middleware/auth');
 const db = require('../../config/db');
 const path = require('path');
 const fs = require('fs');
+const { find } = require('geo-tz');
+
+function getUtcOffsetByCoords(lat, lng) {
+    try {
+        const timezones = find(parseFloat(lat), parseFloat(lng));
+        const timezone = timezones && timezones.length > 0 ? timezones[0] : 'UTC';
+        
+        const now = new Date();
+        const tzDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+        const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+        const offsetMinutes = (tzDate - utcDate) / 60000;
+        return offsetMinutes / 60;
+    } catch (err) {
+        console.error('Error getting offset:', err);
+        return 0;
+    }
+}
 
 class OrganizationController {
+
     // Страница организации
     async getOrganizationPage(req, res) {
         try {
@@ -50,6 +71,11 @@ class OrganizationController {
                 WHERE organization_id = $1 AND user_id = $2
             `, [id, req.session.userId]);
             isStaff = staffCheck.rows.length > 0;
+
+            let user = null;
+            if (req.session.userId) {
+                user = await User.findById(req.session.userId);
+            }
             
             res.render('pages/organization', {
                 title: organization.name,
@@ -59,7 +85,9 @@ class OrganizationController {
                 isFollowing,
                 isStaff: isStaff,
                 returnTo,
-                filter: req.query.filter || 'all'
+                filter: req.query.filter || 'all',
+                user, 
+                isAuthenticated
             });
         } catch (error) {
             console.error('Organization page error:', error);
@@ -635,6 +663,350 @@ class OrganizationController {
             res.json(posts);
         } catch (error) {
             console.error('Get organization posts error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getUserOrganizationsForSelect(req, res) {
+        try {
+            const userId = req.session.userId;
+            
+            const organizations = await db.query(`
+                SELECT o.id, o.name
+                FROM organizations o
+                JOIN organizations_staff os ON o.id = os.organization_id
+                WHERE os.user_id = $1
+                ORDER BY o.name
+            `, [userId]);
+            
+            res.json(organizations.rows);
+        } catch (error) {
+            console.error('Get user organizations error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async createEvent(req, res) {
+        try {
+            const { title, description, latitude, longitude, eventDate, eventTime, maxVolunteers, organizationId, problemId } = req.body;
+            const userId = req.session.userId;
+            
+            const staffCheck = await db.query(`
+                SELECT id FROM organizations_staff 
+                WHERE organization_id = $1 AND user_id = $2
+            `, [organizationId, userId]);
+            
+            if (staffCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'You do not have permission to create events for this organization' });
+            }
+
+            const timezoneOffset = getUtcOffsetByCoords(latitude, longitude);
+            const localDateTimeStr = `${eventDate} ${eventTime}`;
+            const [year, month, day] = eventDate.split('-');
+            const [hour, minute] = eventTime.split(':');
+            const localAsUtc = Date.UTC(year, month - 1, day, hour, minute);
+            const realUtcTimestamp = localAsUtc - (timezoneOffset * 60 * 60 * 1000);
+            const utcDateForDB = new Date(realUtcTimestamp).toISOString().slice(0, 19).replace('T', ' ');
+            
+            const event = await Event.create({
+                title,
+                description,
+                location: { lat: latitude, lng: longitude },
+                eventDate: utcDateForDB,
+                maxVolunteers: maxVolunteers || null,
+                organizationId,
+                problemId: problemId || null,
+                timezoneOffset
+            });
+            
+            res.status(201).json({ success: true, eventId: event.id });
+        } catch (error) {
+            console.error('Create event error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getEvent(req, res) {
+        try {
+            const { id } = req.params;
+            const event = await Event.findById(id);
+            
+            if (!event) {
+                return res.status(404).json({ error: 'Event not found' });
+            }
+            
+            let isJoined = false;
+            let isStaff = false;
+            if (req.session.userId) {
+                isJoined = await Event.isJoined(id, req.session.userId);
+
+                const staffCheck = await db.query(`
+                    SELECT id FROM organizations_staff 
+                    WHERE organization_id = $1 AND user_id = $2
+                `, [event.organization_id, req.session.userId]);
+                isStaff = staffCheck.rows.length > 0;
+            }
+            
+            event.is_joined = isJoined;
+            event.is_staff = isStaff;
+            res.json(event);
+        } catch (error) {
+            console.error('Get event error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async joinEvent(req, res) {
+        try {
+            const { id } = req.params;
+            const userId = req.session.userId;
+            
+            if (!userId) {
+                return res.status(401).json({ error: 'Please login to join event' });
+            }
+            
+            await Event.join(id, userId);
+            res.json({ success: true, message: 'Successfully joined the event!' });
+        } catch (error) {
+            console.error('Join event error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getEventsForMap(req, res) {
+        console.log('getEventsForMap CALLED!');
+        try {
+            let { organizationFilter, status, search } = req.query;
+            console.log('Received status filter:', status);
+            
+            let orgIdsArray = null;
+            if (organizationFilter === 'following' && req.session.userId) {
+                const followedOrgs = await Organization.getFollowedOrganizations(req.session.userId);
+                orgIdsArray = followedOrgs.map(org => org.id);
+            }
+            
+            const events = await Event.findAll({
+                organizationIds: orgIdsArray,
+                status: status === 'all' ? null : status,
+                search: search || null
+            });
+
+            console.log('Returning events count:', events.length);
+            
+            res.json(events);
+        } catch (error) {
+            console.error('Get events for map error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getFollowedOrganizationsIds(req, res) {
+        try {
+            const userId = req.session.userId;
+            const followedOrgs = await Organization.getFollowedOrganizations(userId);
+            res.json(followedOrgs.map(org => org.id));
+        } catch (error) {
+            console.error('Get followed organizations error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async cancelJoinEvent(req, res) {
+        try {
+            const { id } = req.params;
+            const userId = req.session.userId;
+            
+            if (!userId) {
+                return res.status(401).json({ error: 'Please login' });
+            }
+            
+            const event = await Event.findById(id);
+            if (!event) {
+                return res.status(404).json({ error: 'Event not found' });
+            }
+            
+            if (event.status === 'completed') {
+                return res.status(400).json({ error: 'Cannot cancel participation in completed event' });
+            }
+            
+            await Event.cancelJoin(id, userId);
+            res.json({ success: true, message: 'Participation cancelled' });
+        } catch (error) {
+            console.error('Cancel join event error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getEventParticipants(req, res) {
+        try {
+            const { id } = req.params;
+            const userId = req.session.userId;
+            
+            const event = await Event.findById(id);
+            if (!event) {
+                return res.status(404).json({ error: 'Event not found' });
+            }
+            
+            const staffCheck = await db.query(`
+                SELECT id FROM organizations_staff 
+                WHERE organization_id = $1 AND user_id = $2
+            `, [event.organization_id, userId]);
+            
+            if (staffCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'Access denied' });
+            }
+            
+            const participants = await Event.getParticipants(id);
+            res.json(participants);
+        } catch (error) {
+            console.error('Get event participants error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async updateParticipantStatus(req, res) {
+        try {
+            const { id, userId } = req.params;
+            const { status } = req.body;
+            const currentUserId = req.session.userId;
+            
+            const event = await Event.findById(id);
+            if (!event) {
+                return res.status(404).json({ error: 'Event not found' });
+            }
+            
+            const staffCheck = await db.query(`
+                SELECT id FROM organizations_staff 
+                WHERE organization_id = $1 AND user_id = $2
+            `, [event.organization_id, currentUserId]);
+            
+            if (staffCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'Access denied' });
+            }
+            
+            await db.query(`
+                UPDATE event_participants 
+                SET status = $1
+                WHERE event_id = $2 AND user_id = $3
+            `, [status, id, userId]);
+            
+            res.json({ success: true });
+        } catch (error) {
+            console.error('Update participant status error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async removeParticipant(req, res) {
+        try {
+            const { id, userId } = req.params;
+            const currentUserId = req.session.userId;
+            
+            const event = await Event.findById(id);
+            if (!event) {
+                return res.status(404).json({ error: 'Event not found' });
+            }
+            
+            const staffCheck = await db.query(`
+                SELECT id FROM organizations_staff 
+                WHERE organization_id = $1 AND user_id = $2
+            `, [event.organization_id, currentUserId]);
+            
+            if (staffCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'Access denied' });
+            }
+            
+            await db.query(`
+                DELETE FROM event_participants 
+                WHERE event_id = $1 AND user_id = $2
+            `, [id, userId]);
+            
+            await db.query(`
+                UPDATE events 
+                SET current_volunteers = current_volunteers - 1
+                WHERE id = $1
+            `, [id]);
+            
+            res.json({ success: true });
+        } catch (error) {
+            console.error('Remove participant error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async updateEventDate(req, res) {
+        try {
+            const { id } = req.params;
+            const { eventDate } = req.body;
+            const userId = req.session.userId;
+            
+            if (!userId) {
+                return res.status(401).json({ error: 'Please login' });
+            }
+            
+            const staffCheck = await db.query(`
+                SELECT os.id FROM organizations_staff os
+                JOIN events e ON os.organization_id = e.organization_id
+                WHERE e.id = $1 AND os.user_id = $2
+            `, [id, userId]);
+            
+            if (staffCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'You do not have permission to update this event' });
+            }
+            
+            // Проверяем, что дата не раньше, чем завтра
+            const newDate = new Date(eventDate);
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            
+            if (newDate < tomorrow) {
+                return res.status(400).json({ error: 'Event date must be at least 24 hours from now' });
+            }
+            
+            await db.query(`
+                UPDATE events SET event_date = $1 WHERE id = $2
+            `, [eventDate, id]);
+            
+            res.json({ success: true });
+        } catch (error) {
+            console.error('Update event date error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async updateEventStatus(req, res) {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const userId = req.session.userId;
+            
+            if (!userId) {
+                return res.status(401).json({ error: 'Please login' });
+            }
+            
+            const staffCheck = await db.query(`
+                SELECT os.id FROM organizations_staff os
+                JOIN events e ON os.organization_id = e.organization_id
+                WHERE e.id = $1 AND os.user_id = $2
+            `, [id, userId]);
+            
+            if (staffCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'You do not have permission to update this event' });
+            }
+            
+            const allowedStatuses = ['planned', 'ongoing', 'completed', 'cancelled'];
+            if (!allowedStatuses.includes(status)) {
+                return res.status(400).json({ error: 'Invalid status' });
+            }
+            
+            await db.query(`
+                UPDATE events SET status = $1 WHERE id = $2
+            `, [status, id]);
+            
+            res.json({ success: true, message: `Event status updated to ${status}` });
+        } catch (error) {
+            console.error('Update event status error:', error);
             res.status(500).json({ error: error.message });
         }
     }

@@ -8,6 +8,8 @@ const {
     validateProfileUpdateMiddleware 
 } = require('../middleware/validation');
 
+router.get('/api/me', authController.getCurrentUser);
+
 // Регистрация 
 router.get('/register', isGuest, authController.getRegister);
 router.post('/register', isGuest, validateRegistrationMiddleware, authController.postRegister);

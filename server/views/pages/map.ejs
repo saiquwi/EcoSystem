@@ -35,42 +35,81 @@
                 </div>
                 
                 <div class="sidebar-content">
-                    <!-- Add Problem Button -->
-                    <button class="btn btn-primary btn-block" id="addProblemBtn">
-                        + Report a Problem
-                    </button>
-                    
-                    <!-- Filters -->
-                    <div class="filters-section">
-                        <h4>Filter by Category</h4>
-                        <div class="filter-buttons" id="categoryFilterButtons">
-                            <button class="filter-btn active" data-category="all">All</button>
-                            <button class="filter-btn" data-category="garbage">🗑️ Garbage</button>
-                            <button class="filter-btn" data-category="water_pollution">💧 Water Pollution</button>
-                            <button class="filter-btn" data-category="air_pollution">🌫️ Air Pollution</button>
-                            <button class="filter-btn" data-category="deforestation">🌲 Deforestation</button>
-                            <button class="filter-btn" data-category="illegal_dumping">🚛 Illegal Dumping</button>
-                            <button class="filter-btn" data-category="animal_rescue">🐾 Animal Rescue</button>
-                            <button class="filter-btn" data-category="other">📌 Other</button>
+                    <div class="action-buttons-row">
+                        <button class="btn btn-primary" id="addProblemBtn">+ Report a Problem</button>
+                        <button class="btn btn-primary" id="addEventBtn">+ Add Event</button>
+                    </div>
+                    <div class="content-type-switch">
+                        <button class="switch-btn active" data-type="problems">Problems</button>
+                        <button class="switch-btn" data-type="events">Events</button>
+                    </div>
+
+                    <!-- Problem Filters -->
+                    <div id="problemsFilters" style="display: block;">
+                        <div class="filters-section">
+                            <h4>Filter by Category</h4>
+                            <div class="filter-buttons" id="categoryFilterButtons">
+                                <button class="filter-btn active" data-category="all">All</button>
+                                <button class="filter-btn" data-category="garbage">🗑️ Garbage</button>
+                                <button class="filter-btn" data-category="water_pollution">💧 Water Pollution</button>
+                                <button class="filter-btn" data-category="air_pollution">🌫️ Air Pollution</button>
+                                <button class="filter-btn" data-category="deforestation">🌲 Deforestation</button>
+                                <button class="filter-btn" data-category="illegal_dumping">🚛 Illegal Dumping</button>
+                                <button class="filter-btn" data-category="animal_rescue">🐾 Animal Rescue</button>
+                                <button class="filter-btn" data-category="other">📌 Other</button>
+                            </div>
+                        </div>
+                        <div class="filters-section">
+                            <h4>Filter by Status</h4>
+                            <div class="filter-buttons" id="statusFilterButtons">
+                                <button class="filter-btn active" data-status="all">All</button>
+                                <button class="filter-btn" data-status="pending">⏳ Pending</button>
+                                <button class="filter-btn" data-status="confirmed">✅ Confirmed</button>
+                                <button class="filter-btn" data-status="in_progress">🔧 In Progress</button>
+                                <button class="filter-btn" data-status="completed">📋 Completed</button>
+                                <button class="filter-btn" data-status="closed">🎉 Closed</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="filters-section">
-                        <h4>Filter by Status</h4>
-                        <div class="filter-buttons" id="statusFilterButtons">
-                            <button class="filter-btn active" data-status="all">All</button>
-                            <button class="filter-btn" data-status="pending">⏳ Pending</button>
-                            <button class="filter-btn" data-status="confirmed">✅ Confirmed</button>
-                            <button class="filter-btn" data-status="in_progress">🔧 In Progress</button>
-                            <button class="filter-btn" data-status="completed">📋 Completed</button>
-                            <button class="filter-btn" data-status="closed">🎉 Closed</button>
+
+                    <!-- Events Filters -->
+                    <div id="eventsFilters" style="display: none;">
+                        <div class="filters-section">
+                            <h4>Filter by Organization</h4>
+                            <div class="filter-buttons" id="eventOrgFilterButtons">
+                                <button class="filter-btn active" data-org-filter="all">All</button>
+                                <button class="filter-btn" data-org-filter="following">My Subscriptions</button>
+                            </div>
+                        </div>
+                        <div class="filters-section">
+                            <h4>Filter by Status</h4>
+                            <div class="filter-buttons" id="eventStatusFilterButtons">
+                                <button class="filter-btn active" data-event-status="all">All</button>
+                                <button class="filter-btn" data-event-status="planned">Planned</button>
+                                <button class="filter-btn" data-event-status="ongoing">Ongoing</button>
+                                <button class="filter-btn" data-event-status="completed">Completed</button>
+                                <button class="filter-btn" data-event-status="cancelled">Cancelled</button>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Problem List -->
-                    <div class="problems-list" id="problemsList">
-                        <h4>Nearby Problems</h4>
-                        <div class="problems-container" id="problemsContainer">
-                            <p class="empty-text">Loading problems...</p>
+                    <div id="problemsListContainer">
+                        <div class="problems-list" id="problemsList">
+                            <h4>Nearby Problems</h4>
+                            <div class="problems-container" id="problemsContainer">
+                                <p class="empty-text">Loading problems...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Events List -->
+                    <div id="eventsListContainer" style="display: none;">
+                        <div class="problems-list" id="eventsList">
+                            <h4>Upcoming Events</h4>
+                            <div class="problems-container" id="eventsContainer">
+                                <p class="empty-text">Loading events...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,6 +181,65 @@
         </div>
     </div>
 
+    <!-- Add Event Modal -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Event</h3>
+                <button class="modal-close" id="closeEventModal">&times;</button>
+            </div>
+            <form id="eventForm" class="event-form">
+                <div class="form-group">
+                    <label for="eventTitle" class="form-label">Title *</label>
+                    <input type="text" id="eventTitle" name="title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventDescription" class="form-label">Description</label>
+                    <textarea id="eventDescription" name="description" rows="3" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventOrganization" class="form-label">Organization *</label>
+                    <select id="eventOrganization" name="organizationId" class="form-control" required>
+                        <option value="">Select organization...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventDate" class="form-label">Event Date & Time *</label>
+                    <div class="datetime-wrapper">
+                        <input type="date" id="eventDate" name="eventDate" class="form-control" required>
+                        <input type="time" id="eventTime" name="eventTime" class="form-control" required>
+                    </div>
+                    <div id="eventTimezoneInfo" class="timezone-info" style="font-size: 0.8rem; color: var(--gray); margin-top: 5px;">
+                        UTC (will update after selecting location)
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventMaxVolunteers" class="form-label">Max Volunteers</label>
+                    <input type="number" id="eventMaxVolunteers" name="maxVolunteers" class="form-control" placeholder="Unlimited if empty">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Location *</label>
+                    <button type="button" id="chooseEventLocationBtn" class="btn btn-outline btn-block">📍 Choose location on the map</button>
+                    <div class="location-info" id="eventLocationInfo">
+                        <p class="text-muted">No location selected</p>
+                    </div>
+                    <input type="hidden" id="eventLat" name="latitude" required>
+                    <input type="hidden" id="eventLng" name="longitude" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelEventModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Problem Details Modal -->
     <div class="modal" id="problemDetailsModal">
         <div class="modal-content modal-large">
@@ -171,9 +269,16 @@
             <div class="gallery-counter" id="galleryCounter"></div>
         </div>
     </div>
+
+    <div id="app-data" 
+        data-current-user-id="<%= user ? user.id : '' %>" 
+        data-is-authenticated="<%= isAuthenticated %>"
+        style="display: none;">
+    </div>
     
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/notifications.js"></script>
     <script src="/js/gallery.js"></script>
     <script src="/js/map.js"></script>
 </body>

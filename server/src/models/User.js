@@ -228,20 +228,11 @@ class User {
         `;
         const createdResult = await db.query(createdQuery, [userId]);
         
-        // Количество организованных событий
-        const organizedQuery = `
-            SELECT COUNT(*) as count 
-            FROM events 
-            WHERE created_by = $1
-        `;
-        const organizedResult = await db.query(organizedQuery, [userId]);
-        
         return {
             problems_confirmed: parseInt(confirmationsResult.rows[0].count),
             problems_closed: parseInt(closedResult.rows[0].count),
             events_attended: parseInt(eventsResult.rows[0].count),
             problems_created: parseInt(createdResult.rows[0].count),
-            events_organized: parseInt(organizedResult.rows[0].count),
             initiatives_organized: 0,
             initiatives_joined: 0
         };

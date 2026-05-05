@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const Event = require('./models/Event');
 
 // Новые подключения
 const sessionConfig = require('../config/session');
@@ -75,6 +76,26 @@ app.use('/problems', problemRoutes);
 
 const organizationRoutes = require('./routes/organizationRoutes');
 app.use('/organizations', organizationRoutes);
+
+function getTimeUntilUTCNoon() {
+    const now = new Date();
+    const noonUTC = new Date();
+    noonUTC.setUTCHours(12, 0, 0, 0);
+    
+    if (now.getUTCHours() >= 12) {
+        noonUTC.setUTCDate(noonUTC.getUTCDate() + 1);
+    }
+    
+    return noonUTC - now;
+}
+
+setTimeout(() => {
+    Event.updateStatusesByTime().catch(console.error);
+    setInterval(async () => {
+        await Event.updateStatusesByTime();
+        console.log(`Event statuses updated at ${new Date().toISOString()}`);
+    }, 24 * 60 * 60 * 1000);
+}, getTimeUntilUTCNoon());
 
 // Тестовый маршрут для проверки БД
 app.get('/db-test', async (req, res) => {

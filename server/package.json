@@ -16,6 +16,7 @@
     "express": "^4.18.2",
     "express-session": "^1.19.0",
     "express-validator": "^7.3.1",
+    "geo-tz": "^8.1.6",
     "method-override": "^3.0.0",
     "multer": "^2.1.1",
     "pg": "^8.19.0",

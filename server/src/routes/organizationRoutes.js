@@ -19,6 +19,20 @@ router.get('/api/:id/available-users', organizationController.getAvailableUsers)
 router.post('/requests', validateOrganizationMiddleware, organizationController.createOrganizationRequest);
 router.get('/api/my-requests', organizationController.getUserOrganizationRequests);
 
+// Ивенты
+router.get('/api/events', organizationController.getEventsForMap);
+router.get('/api/followed-organizations', isAuthenticated, organizationController.getFollowedOrganizationsIds);
+router.get('/api/user-organizations', isAuthenticated, organizationController.getUserOrganizationsForSelect);
+router.post('/events', isAuthenticated, organizationController.createEvent);
+router.post('/events/:id/join', isAuthenticated, organizationController.joinEvent);
+router.get('/events/:id/participants', isAuthenticated, organizationController.getEventParticipants);
+router.put('/events/:id/participants/:userId', isAuthenticated, organizationController.updateParticipantStatus);
+router.delete('/events/:id/participants/:userId', isAuthenticated, organizationController.removeParticipant);
+router.put('/events/:id/status', isAuthenticated, organizationController.updateEventStatus);
+router.put('/events/:id/date', isAuthenticated, organizationController.updateEventDate);
+router.get('/events/:id', organizationController.getEvent);
+router.delete('/events/:id/join', isAuthenticated, organizationController.cancelJoinEvent);
+
 // API для подписок
 router.post('/:id/follow', isAuthenticated, organizationController.toggleFollow);
 router.delete('/:id/follow', isAuthenticated, organizationController.toggleFollow);
