@@ -31,6 +31,29 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const createEvent = urlParams.get('createEvent');
+    const orgId = urlParams.get('orgId');
+    
+    if (createEvent === 'true' && orgId) {
+        setTimeout(() => {
+            openEventModal();
+            
+            const orgSelect = document.getElementById('eventOrganization');
+            if (orgSelect) {
+                const checkInterval = setInterval(() => {
+                    if (orgSelect.options.length > 1) {
+                        orgSelect.value = orgId;
+                        orgSelect.disabled = true;
+                        clearInterval(checkInterval);
+                    }
+                }, 100);
+            }
+        }, 200);
+    }
+});
+
 function getCurrentUser() {
     const appData = document.getElementById('app-data');
     if (appData) {
@@ -914,6 +937,9 @@ if (eventForm) {
                 showNotification('Event created successfully!', 'success');
                 closeEventModalFunc();
                 loadEvents();
+                if (typeof loadOrganizationEvents === 'function') {
+                    loadOrganizationEvents();
+                }
             } else {
                 showNotification(result.error || 'Failed to create event', 'error');
             }
@@ -923,6 +949,8 @@ if (eventForm) {
         }
     });
 }
+
+window.openEventModal = openEventModal;
 
 async function loadEvents() {
     console.log('Loading events with filter:', currentEventStatusFilter);
@@ -1094,7 +1122,7 @@ function renderEventDetails(event) {
             <div class="event-status-section">
                 <div class="status-update">
                     <select id="eventStatusSelect" class="form-control">
-                        ${getStatusOptions(event.status, event.event_date)}
+                        ${getStatusOptions(event.status, localDate, event.timezone_offset)}
                     </select>
                     <button id="updateEventStatusBtn" class="btn btn-primary btn-small">Update Status</button>
                 </div>
@@ -1155,21 +1183,24 @@ function renderEventDetails(event) {
     modal.classList.add('show');
 }
 
-function isEventDatePassed(eventDateUTC) {
+function isEventDatePassed(eventLocalDate, timezoneOffset) {
     const nowUTC = new Date();
-    const eventDate = new Date(eventDateUTC);
-    return eventDate < nowUTC;
+    const nowLocalTimestamp = nowUTC.getTime() + (timezoneOffset * 60 * 60 * 1000);
+    const nowLocalDate = new Date(nowLocalTimestamp);
+    const todayYear = nowLocalDate.getUTCFullYear();
+    const todayMonth = String(nowLocalDate.getUTCMonth() + 1).padStart(2, '0');
+    const todayDay = String(nowLocalDate.getUTCDate()).padStart(2, '0');
+    const todayDate = `${todayYear}-${todayMonth}-${todayDay}`;
+    return eventLocalDate <= todayDate;
 }
 
-function getStatusOptions(currentStatus, eventDate) {
-    const isPassed = isEventDatePassed(eventDate);
-    
+function getStatusOptions(currentStatus, eventLocalDate, timezoneOffset) {
     let options = '';
     
     switch (currentStatus) {
         case 'planned':
             options += `<option value="planned" selected>Planned</option>`;
-            if (isPassed) {
+            if (isEventDatePassed(eventLocalDate, timezoneOffset)) {
                 options += `<option value="ongoing">Ongoing</option>`;
             }
             options += `<option value="cancelled">Cancelled</option>`;

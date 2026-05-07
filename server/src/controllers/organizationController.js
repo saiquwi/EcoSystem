@@ -776,13 +776,18 @@ class OrganizationController {
     async getEventsForMap(req, res) {
         console.log('getEventsForMap CALLED!');
         try {
-            let { organizationFilter, status, search } = req.query;
+            let { organizationId, organizationFilter, status, search } = req.query;
             console.log('Received status filter:', status);
             
             let orgIdsArray = null;
             if (organizationFilter === 'following' && req.session.userId) {
                 const followedOrgs = await Organization.getFollowedOrganizations(req.session.userId);
                 orgIdsArray = followedOrgs.map(org => org.id);
+            }
+
+            if (organizationId) {
+                orgIdsArray = [parseInt(organizationId)];
+                console.log('Filtering by organizationId:', orgIdsArray);
             }
             
             const events = await Event.findAll({

@@ -1,3 +1,8 @@
+const orgData = document.getElementById('org-data');
+const organizationId = orgData ? orgData.dataset.orgId : null;
+const isStaff = orgData ? orgData.dataset.isStaff === 'true' : false;
+let waitingForEventLocation = false;
+
 if (typeof initPosts === 'function') {
     initPosts();
 }
@@ -113,3 +118,147 @@ if (createPostForm) {
         }
     });
 }
+
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+function switchTab(tabId) {
+    tabContents.forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+    
+    const activeContent = document.getElementById(`${tabId}Tab`);
+    if (activeContent) {
+        activeContent.classList.add('active');
+        activeContent.style.display = 'block';
+    }
+    
+    const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    if (tabId === 'posts') {
+        loadOrganizationPosts();
+    } else if (tabId === 'events') {
+        loadOrganizationEvents();
+    }
+}
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        switchTab(tabId);
+    });
+});
+
+async function loadOrganizationEvents() {
+    const container = document.getElementById('orgEventsList');
+    if (!container || !organizationId) return;
+    
+    try {
+        const response = await fetch(`/organizations/api/events?organizationId=${parseInt(organizationId)}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to load events');
+        }
+        
+        const events = await response.json();
+        
+        if (events.length === 0) {
+            container.innerHTML = '<p class="empty-text">No events yet</p>';
+            return;
+        }
+        
+        container.innerHTML = events.map(event => `
+            <div class="event-card" onclick="viewEvent(${event.id})">
+                <h3 class="event-title">${escapeHtml(event.title)}</h3>
+                <p class="event-date">${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
+                <p class="event-description">${escapeHtml(event.description) || 'No description'}</p>
+                <span class="event-status status-${event.status}">${event.status}</span>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading organization events:', error);
+        container.innerHTML = '<p class="empty-text">Error loading events</p>';
+    }
+}
+
+const addEventFromOrgBtn = document.getElementById('addEventFromOrgBtn');
+if (addEventFromOrgBtn) {
+    addEventFromOrgBtn.addEventListener('click', () => {
+        window.location.href = `/map?createEvent=true&orgId=${organizationId}`;
+    });
+}
+
+const addPostBtn = document.getElementById('addPostBtn');
+const createPostContainer = document.getElementById('createPostFormContainer');
+const cancelPostBtn = document.getElementById('cancelPostBtn');
+
+if (addPostBtn) {
+    addPostBtn.addEventListener('click', () => {
+        createPostContainer.style.display = 'block';
+        addPostBtn.style.display = 'none';
+    });
+}
+
+if (cancelPostBtn) {
+    cancelPostBtn.addEventListener('click', () => {
+        createPostContainer.style.display = 'none';
+        addPostBtn.style.display = 'inline-flex';
+        document.getElementById('postContent').value = '';
+        selectedPostPhotos = [];
+        updatePostPhotoPreview();
+        updatePostFileCount();
+    });
+}
+
+async function loadOrganizationPosts() {
+    const container = document.getElementById('orgPostsList');
+    if (!container || !organizationId) return;
+    
+    try {
+        const response = await fetch(`/organizations/${organizationId}/posts`);
+        const posts = await response.json();
+        
+        if (posts.length === 0) {
+            container.innerHTML = '<p class="empty-text">No posts yet</p>';
+            return;
+        }
+        
+        container.innerHTML = posts.map(post => `
+            <div class="post-card">
+                <div class="post-content">
+                    <p>${escapeHtml(post.content)}</p>
+                </div>
+                ${post.photos && post.photos.length > 0 ? `
+                    <div class="post-photos">
+                        ${post.photos.map((photo, idx) => `
+                            <img src="${photo}" alt="Post photo" class="post-photo" data-photos='${JSON.stringify(post.photos)}' data-index="${idx}">
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <div class="post-header">
+                    <div class="post-date">${new Date(post.created_at).toLocaleDateString('ru-RU')}</div>
+                    ${isStaff ? `
+                        <div class="post-actions">
+                            <button class="btn-edit-post" data-post-id="${post.id}" data-content="${post.content.replace(/"/g, '&quot;')}" data-post-photos='${JSON.stringify(post.photos || [])}'>✏️</button>
+                            <button class="btn-delete-post" data-post-id="${post.id}">🗑️</button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
+        
+        if (typeof attachPostPhotoHandlers === 'function') {
+            attachPostPhotoHandlers();
+        }
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        container.innerHTML = '<p class="empty-text">Error loading posts</p>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadOrganizationPosts();
+});
